@@ -1,2 +1,2 @@
 # sr.dev.br
-Kenneth Laskoski's personal website
+Senior software developers in Brazil 
