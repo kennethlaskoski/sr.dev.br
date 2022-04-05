@@ -1,5 +1,5 @@
 # sr.dev.br
-### Senior software developers in Brazil 
+### Open source resume generator
 
 This is the source code for the [sr.dev.br](https://sr.dev.br) website, created by [Kenneth Laskoski](https://github.sr.dev.br), a computer programmer focused on mobile applications, specially iOS app development using the [Swift programming language](https://docs.swift.org/swift-book/index.html) from [Apple](https://developer.apple.com/swift/).
 
