@@ -1,1 +1,1 @@
-print(Server().text)
+print("Hello, world!")
