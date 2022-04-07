@@ -7,9 +7,7 @@ let package = Package(
     name: "sr.dev.br",
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
-        .library(
-            name: "sr.dev.br",
-            targets: ["sr.dev.br"]),
+      .executable(name: "Server", targets: ["Server"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -18,11 +16,10 @@ let package = Package(
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
-        .target(
-            name: "sr.dev.br",
-            dependencies: []),
+        .executableTarget(
+            name: "Server"),
         .testTarget(
-            name: "sr.dev.brTests",
-            dependencies: ["sr.dev.br"]),
+            name: "ServerTests",
+            dependencies: ["Server"]),
     ]
 )
