@@ -8,86 +8,23 @@
 //
 // Copyright (c) 2022 Kenneth Laskoski
 //===----------------------------------------------------------------------===//
-import NIOCore
-import NIOPosix
+import NIO
+import Engine
 
-private final class EchoHandler: ChannelInboundHandler {
-  public typealias InboundIn = ByteBuffer
+#if DEBUG
+  let numberOfThreads = 1
+#else
+  let numberOfThreads = System.coreCount
+#endif
+let eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: numberOfThreads)
 
-  public func channelRead(context: ChannelHandlerContext, data: NIOAny) {
-    context.write(data, promise: nil)
-  }
+// Bootstrap
 
-  public func channelReadComplete(context: ChannelHandlerContext) {
-    context.flush()
-  }
+let target = try! bootstrap()
+  .run.perform().unwrap()
 
-  public func errorCaught(context: ChannelHandlerContext, error: Error) {
-    print("error: ", error)
-    context.close(promise: nil)
-  }
-}
-
-let group = MultiThreadedEventLoopGroup(numberOfThreads: System.coreCount)
-let bootstrap = ServerBootstrap(group: group)
-  .serverChannelOption(ChannelOptions.backlog, value: 256)
-  .serverChannelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
-
-  .childChannelInitializer { channel in
-    // Ensure we don't read faster than we can write by adding the BackPressureHandler into the pipeline.
-    channel.pipeline.addHandler(BackPressureHandler()).flatMap { v in
-      channel.pipeline.addHandler(EchoHandler())
-    }
-  }
-
-  .childChannelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
-  .childChannelOption(ChannelOptions.maxMessagesPerRead, value: 16)
-  .childChannelOption(ChannelOptions.recvAllocator, value: AdaptiveRecvByteBufferAllocator())
+run("", on: eventLoopGroup, at: target)
 
 defer {
-  try! group.syncShutdownGracefully()
+  try! eventLoopGroup.syncShutdownGracefully()
 }
-
-// First argument is the program path
-let arguments = CommandLine.arguments
-let arg1 = arguments.dropFirst().first
-let arg2 = arguments.dropFirst(2).first
-
-let defaultHost = "::1"
-let defaultPort = 8007
-
-enum BindTo {
-  case ip(host: String, port: Int)
-  case unixDomainSocket(path: String)
-}
-
-let bindTarget: BindTo
-switch (arg1, arg1.flatMap(Int.init), arg2.flatMap(Int.init)) {
-case (.some(let h), _ , .some(let p)):
-  /* we got two arguments, let's interpret that as host and port */
-  bindTarget = .ip(host: h, port: p)
-case (.some(let portString), .none, _):
-  /* couldn't parse as number, expecting unix domain socket path */
-  bindTarget = .unixDomainSocket(path: portString)
-case (_, .some(let p), _):
-  /* only one argument --> port */
-  bindTarget = .ip(host: defaultHost, port: p)
-default:
-  bindTarget = .ip(host: defaultHost, port: defaultPort)
-}
-
-let channel = try { () -> Channel in
-  switch bindTarget {
-  case .ip(let host, let port):
-    return try bootstrap.bind(host: host, port: port).wait()
-  case .unixDomainSocket(let path):
-    return try bootstrap.bind(unixDomainSocketPath: path).wait()
-  }
-}()
-
-print("Server started and listening on \(channel.localAddress!)")
-
-// This will never unblock as we don't close the ServerChannel
-try channel.closeFuture.wait()
-
-print("Server closed")
