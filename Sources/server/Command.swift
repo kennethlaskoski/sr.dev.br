@@ -9,12 +9,12 @@ import ArgumentParser
 
 @main
 struct Command: ParsableCommand {
-  static let configuration = CommandConfiguration(abstract: "sr.dev.br server.")
+  static let configuration = CommandConfiguration(commandName: "server", abstract: "sr.dev.br server command.")
 
-  @Option(name: .shortAndLong, help: "The host to bind on.")
+  @Argument(help: "The host to bind on.")
   var host: String = "::1"
 
-  @Option(name: .shortAndLong, help: "The port to bind on.")
+  @Argument(help: "The port to bind on.")
   var port: Int = 8007
 
   mutating func run() throws {
