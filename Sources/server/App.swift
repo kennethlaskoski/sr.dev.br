@@ -1,5 +1,5 @@
 //
-//  Server.swift
+//  App.swift
 //
 //
 //  Created by Kenneth Laskoski on 10/05/22.
@@ -8,7 +8,7 @@
 import NIOCore
 import NIOPosix
 
-public struct Server {
+public struct App {
   private final class EchoHandler: ChannelInboundHandler {
     public typealias InboundIn = ByteBuffer
 
@@ -26,7 +26,7 @@ public struct Server {
     }
   }
 
-  public static func run(host: String, port: Int) {
+  public static func listen(host: String, port: Int) {
     let group = MultiThreadedEventLoopGroup(numberOfThreads: System.coreCount)
     let bootstrap = ServerBootstrap(group: group)
       .serverChannelOption(ChannelOptions.backlog, value: 256)

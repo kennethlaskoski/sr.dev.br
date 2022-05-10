@@ -9,7 +9,7 @@ import ArgumentParser
 
 @main
 struct Command: ParsableCommand {
-  static let configuration = CommandConfiguration(abstract: "Start sr.dev.br server.")
+  static let configuration = CommandConfiguration(abstract: "sr.dev.br server.")
 
   @Option(name: .shortAndLong, help: "The host to bind on.")
   var host: String = "::1"
@@ -18,6 +18,9 @@ struct Command: ParsableCommand {
   var port: Int = 8007
 
   mutating func run() throws {
-    Server.run(host: host, port: port)
+    let bootstrap = { host, port in
+      App.listen(host: host, port: port)
+    }
+    bootstrap(host, port)
   }
 }
