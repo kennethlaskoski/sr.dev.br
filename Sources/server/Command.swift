@@ -5,6 +5,7 @@
 //  Created by Kenneth Laskoski on 10/05/22.
 //
 
+import Network
 import ArgumentParser
 
 @main
